@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, Response, url_for, redirect
+from flask import Flask, render_template, request, make_response, Response, url_for, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import secrets, string
@@ -223,6 +223,113 @@ def logout() -> Response | str:
         response.set_cookie('session_id', session_id, expires=expires_at)
         return redirect('/')
     return redirect('/')
+
+
+@app.route('/HomePage', methods=['POST', 'GET'])
+def home_page():
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        with Session_app.app_context():
+            session = Session.query.filter_by(session_id=session_id).first()
+        if session:
+            expires_at = session.session_id_expires_at
+            if expires_at > datetime.utcnow() and session.is_logged_in:
+                return render_template('HomePage.html')
+            else:
+                return render_template('LoginPage.html')
+        else:
+            return render_template('LoginPage.html')
+    else:
+        return render_template('LoginPage.html')
+
+
+@app.route('/AnalysisChannel', methods=['GET','POST'])
+def analysis_channel():
+    session_id = request.cookies.get('session_id')
+    if request.method == 'GET':
+        if session_id is not None:
+            with Session_app.app_context():
+                session = Session.query.filter_by(session_id=session_id).first()
+            if session:
+                expires_at = session.session_id_expires_at
+                if expires_at > datetime.utcnow() and session.is_logged_in:
+                    channelName = request.args.get('inputchannel_name')
+                    if channelName == "" or channelName is None:
+                        return render_template('HomePage.html')
+                    response = make_response(render_template('AnalysisPage.html'))
+                    response.set_cookie('channel_name', channelName, expires=expires_at)
+                    return response
+                else:
+                    return render_template('LoginPage.html')
+            else:
+                return render_template('LoginPage.html')
+        else:
+            return render_template('LoginPage.html')
+    else:
+        if session_id is not None:
+            channel_name = request.cookies.get('channel_name')
+            if channel_name is not None:
+                with Session_app.app_context():
+                    session = Session.query.filter_by(session_id=session_id).first()
+                if session:
+                    expires_at = session.session_id_expires_at
+                    if expires_at > datetime.utcnow() and session.is_logged_in:
+                        data = get_data()
+                        return jsonify(data)
+                    else:
+                        return render_template('LoginPage.html')
+                else:
+                    return render_template('LoginPage.html')
+            else:
+                return render_template('HomePage.html')
+        else:
+            return render_template('LoginPage.html')
+
+
+def get_data():
+    table_data = [
+        {
+            "VideoID": "1",
+            "VideoTitle": "Sample Video 1",
+            "ViewCount": 1000,
+            "LikeCount": 500,
+            "DislikesCount": 50,
+            "CommentsCount": 200,
+            "AdditionalInformation": "Additional Info 1"
+        },
+        {
+            "VideoID": "2",
+            "VideoTitle": "Sample Video 2",
+            "ViewCount": 2000,
+            "LikeCount": 1000,
+            "DislikesCount": 100,
+            "CommentsCount": 400,
+            "AdditionalInformation": "Additional Info 2"
+        },
+        {
+            "VideoID": "3",
+            "VideoTitle": "Sample Video 3",
+            "ViewCount": 3000,
+            "LikeCount": 1500,
+            "DislikesCount": 200,
+            "CommentsCount": 600,
+            "AdditionalInformation": "Additional Info 3"
+        }
+    ]
+    data = {
+        'table_data': table_data,
+        'TotalViews': 10000,
+        'TotalLikes': 2000,
+        'TotalDislikes': 500,
+        'TotalEngagement': 1200,
+        'labels': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+                   "November", "December"],
+        'views': [1000, 1200, 1300, 1500, 1400, 1600, 1700, 1800, 1900, 2000, 2100, 2200],
+        'likes': [200, 220, 230, 250, 240, 260, 270, 280, 290, 300, 310, 320],
+        'dislikes': [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105],
+        'engagement': [120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230]
+    }
+    return data
 
 
 if __name__ == '__main__':

@@ -11,49 +11,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Channel Analysis</title>
-    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="../static/css/analysis.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.0.2/chartjs-plugin-annotation.min.js"></script>
+    <script src="../static/scripts/analysis.js"></script>
   </head>
 
   <body onload="document.body.style.opacity='1'">
-    <div class="section1">
-      <center><h1>Welcome to Product Info</h1></center>
+
+    <div class="sectionNav">
+      <div class="nav-bar">
+        <nav class="navbar">
+          <a class="navbar-brand" href="#">Youtube Analysis Web Page</a>
+          <div class="collapse navbar-collapse Link" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/">Home</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Analysis</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">History</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Profile</a>
+              </li>
+            </ul>
+          </div>
+          <form class="logout_button_form" action="/Logout" method="get">
+                  <button type="submit">Logout</button>
+          </form>
+        </nav>
+      </div>
     </div>
 
+    <div class="section1">
+      <center><h1>Welcome to Channel <span class="channel_name" id="channel_name" style="color: darkred; font-weight: bold;" content="">@Placeholder</span>Stats</h1></center>
+      <button id="scrollButton">Scroll Down</button>
+    </div>
 
-    <div class="section2">
+    <div class="section2" id="section2">
+      <h1>Summary Reports</h1>
       <div class="flex-container">
         <div class="flex-item">
-          <div class="flex-title">Sale Rate</div>
+          <div class="flex-title">Total Views</div>
           <div class="flex-value">Placeholder</div>
         </div>
         <div class="flex-item">
-          <div class="flex-title">Conversion Rate</div>
+          <div class="flex-title">Total Likes</div>
+          <div class="flex-value">Placeholder</div>
+        </div>
+        <div class="flex-item">
+          <div class="flex-title">Total Dislikes</div>
+          <div class="flex-value">Placeholder</div>
+        </div>
+        <div class="flex-item">
+          <div class="flex-title">Total Engagement</div>
           <div class="flex-value">Placeholder</div>
         </div>
       </div>
     </div>
 
-    <!-- Display Charts -->
     <div class="section3">
+      <h1>Graph Reports</h1>
       <div class="chart-container-flex">
         <div class="chart-container">
-          <canvas id="MonthlySales"></canvas>
+            <canvas id="MonthlyViews"></canvas>
         </div>
         <div class="chart-container">
-          <canvas id="MonthlyViews"></canvas>
+            <canvas id="MonthlyLikes"></canvas>
         </div>
         <div class="chart-container">
-          <canvas id="MonthlySatisfaction"></canvas>
+            <canvas id="MonthlyDislikes"></canvas>
         </div>
         <div class="chart-container">
-          <canvas id="MonthlySalesAndViews"></canvas>
+            <canvas id="MonthlyEngagement"></canvas>
         </div>
       </div>
     </div>
+
+    <div class="section4">
+        <h1>Table Reports</h1>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th id="VideoID">Video ID</th>
+                    <th id="VideoTitle">Video Title</th>
+                    <th id="ViewCount">Number Of Views</th>
+                    <th id="LikeCount">Number Of Likes</th>
+                    <th id="DislikesCount">Number Of Dislikes</th>
+                    <th id="CommentsCount">Number Of Comments</th>
+                    <th id="Details">Additional Information</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+
+            </tbody>
+        </table>
+    </div>
+
+      <div class="footer">
+            <h1>Back To Top @NolanM</h1>
+      </div>
+
   </body>
 </html>
