@@ -205,5 +205,24 @@ def register():
         return response
 
 
+@app.route('/Logout', methods=['POST', 'GET'])
+def logout() -> Response | str:
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        with Session_app.app_context():
+            session = Session.query.filter_by(session_id=session_id).first()
+            if session:
+                Session_db.session.delete(session)
+                Session_db.session.commit()
+            date_created = session.date_created
+            expires_at = session.session_id_expires_at
+            new_session = Session(session_id=session_id, date_created=date_created, is_logged_in=False, remember_me=False, session_id_expires_at=expires_at)
+            Session_db.session.add(new_session)
+            Session_db.session.commit()
+        response = make_response(render_template('LoginPage.html'))
+        response.set_cookie('session_id', session_id, expires=expires_at)
+        return redirect('/')
+    return redirect('/')
+
 if __name__ == '__main__':
     app.run(debug=True, port=8000)

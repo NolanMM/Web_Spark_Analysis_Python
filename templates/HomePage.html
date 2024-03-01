@@ -1,9 +1,55 @@
 {%extends 'HomePage_Template.html'%}
 
 {%block head%}
-    <Title>Home Page</Title>
+  <Title>HomePage</Title>
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 {%endblock%}
 
 {%block body%}
-<h1>Welcome to HomePage!!!</h1>
+<div>
+  <div class="nav-bar">
+    <nav class="navbar navbar-expand-lg ">
+      <a class="navbar-brand" href="#">Youtube Analysis Web Page</a>
+      <div class="collapse navbar-collapse Link" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item active">
+            <a class="nav-link" href="/">Home</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Analysis</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Profile</a>
+          </li>
+          <li class="nav-item">
+            <form class="logout_button_form" action="/Logout" method="get">
+              <button type="submit">Logout</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+</div>
+<div class="hero-content">
+  <div class="hero-text">
+      <h1> <span style="color: darkred;">Youtube</span> Analysis</h1>
+      <p>Get the analysis of your youtube channel</p>
+      <button type="button" class="Get_Started_btn">Get Started</button>
+  </div>
+</div>
+<div class="AnalysisYouTube-content">
+  <div class="AnalysisYouTube-text">
+      <h1> <span style="color: darkred;">Youtube</span> Analysis</h1>
+      <p>Get the analysis of your youtube channel</p>
+      <form class="input_channel">
+        <input type="text" class="inputchannel_name" id="inputchannel_name" name="inputchannel_name" placeholder="Enter Channel Name">
+        <button type="submit" class="Get_Started_btn">Search</button>
+      </form>
+  </div>
+</div>
 {%endblock%}

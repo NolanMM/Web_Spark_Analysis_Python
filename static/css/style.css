@@ -1,0 +1,192 @@
+.body{
+    background-color: #000000;
+}
+
+.nav-bar {
+    color: white;
+    background-color: #000000;
+    padding: 10px 0;
+    font-size: 1.5em;
+}
+
+.nav-bar .navbar{
+    color: white;
+    background-color: #000000;
+}
+
+.nav-bar .navbar-brand{
+    color: white;
+    font-size: 1.5em;
+    margin-left: 20px;
+}
+.nav-bar .navbar-brand:hover{
+    color: white;
+}
+
+/*.nav-bar a:hover{*/
+/*    color: gray;*/
+/*}*/
+
+.nav-bar div{
+    font-size: 1.5em;
+    color: white;
+    background-color: black;
+    margin-left: 1020px;
+}
+
+.navbar-nav .nav-item {
+    margin-left: 30px;
+}
+
+.nav-link{
+    color: white;
+}
+.nav-link:hover{
+    color: gray;
+}
+
+.logout_button_form
+{
+    text-align: center;
+    font-size: 0.7em;
+    margin-left: 20px;
+    border-color: black;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 15px;
+    background-color: transparent;
+    width: 180px;
+    height: 100%;
+    color: white;
+    padding-top: 10px;
+}
+
+.logout_button_form button
+{
+    background-color: transparent;
+    border: 3px solid;
+    width: 160px;
+    height: 100%;
+    border-radius: 12px;
+    color: white;
+    font-size: 0.7em;
+    font-weight: bold;
+}
+
+.logout_button_form button:hover
+{
+    background-color: #6f0000;
+    color: white;
+    font-weight: bold;
+}
+
+.hero-content
+{
+    height: 90vh;
+    text-align: center;
+}
+
+.hero-content h1
+{
+    font-size: 1.6em;
+}
+
+.hero-content .hero-text
+{
+    font-size: 5em;
+    color: white;
+    margin-top: 0;
+    padding-top: 14%;
+}
+
+.Get_Started_btn
+{
+    font-size: 0.4em;
+    margin-top: 20px;
+    border-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 15px;
+    background-color: transparent;
+    width: 280px;
+    height: 70px;
+    color: white;
+}
+.Get_Started_btn:hover
+{
+    background-color: darkred;
+    color: white;
+    font-weight: bold;
+}
+
+.AnalysisYouTube-content{
+    height: 90vh;
+    text-align: center;
+    font-size: 1.8em;
+}
+
+.AnalysisYouTube-text{
+    font-size: 1.6em;
+    color: white;
+    margin-top: 0;
+    padding-top: 12%;
+}
+
+.AnalysisYouTube-text h1{
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.inputchannel_name{
+    position: absolute;
+    font-size: 0.6em;
+    width: 75%;
+    height: 100%;
+    border-color: black;
+    border-width: 3px;
+    border-style: solid;
+    background-color: transparent;
+    color: white;
+    padding-left: 20px;
+    left: 0;
+}
+
+.AnalysisYouTube-content .Get_Started_btn
+{
+    font-size: .7em;
+    border-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 12px;
+    background-color: transparent;
+    width: 25%;
+    height: 100%;
+    color: white;
+    margin-top: 0;
+    position: absolute;
+    right: 0;
+}
+.AnalysisYouTube-content .Get_Started_btn:hover
+{
+    background-color: #6f0000;
+    color: white;
+    font-weight: bold;
+}
+
+.input_channel
+{
+    position: absolute;
+    text-align: center;
+    margin-left: 25%;
+    width: 1200px;
+    height: 90px;
+    border-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-radius: 15px;
+    background-color: transparent;
+    color: white;
+    padding-bottom: 30px;
+    margin-top: 60px;
+}
+
