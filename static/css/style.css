@@ -28,14 +28,14 @@
 /*}*/
 
 .nav-bar div{
-    font-size: 1.5em;
+    font-size: 1em;
     color: white;
     background-color: black;
-    margin-left: 1020px;
+    margin-left: 800px;
 }
 
 .navbar-nav .nav-item {
-    margin-left: 30px;
+    margin-left: 10px;
 }
 
 .nav-link{
@@ -48,7 +48,7 @@
 .logout_button_form
 {
     text-align: center;
-    font-size: 0.7em;
+    font-size: 0.9em;
     margin-left: 20px;
     border-color: black;
     border-width: 3px;
@@ -56,9 +56,8 @@
     border-radius: 15px;
     background-color: transparent;
     width: 180px;
-    height: 100%;
+    height: 60px;
     color: white;
-    padding-top: 10px;
 }
 
 .logout_button_form button
@@ -96,7 +95,7 @@
     font-size: 5em;
     color: white;
     margin-top: 0;
-    padding-top: 14%;
+    padding-top: 10%;
 }
 
 .Get_Started_btn
@@ -129,7 +128,7 @@
     font-size: 1.6em;
     color: white;
     margin-top: 0;
-    padding-top: 12%;
+    padding-top: 5%;
 }
 
 .AnalysisYouTube-text h1{
@@ -147,7 +146,7 @@
     border-style: solid;
     background-color: transparent;
     color: white;
-    padding-left: 20px;
+    padding-left: 30px;
     left: 0;
 }
 
@@ -177,7 +176,7 @@
 {
     position: absolute;
     text-align: center;
-    margin-left: 25%;
+    margin-left: 20%;
     width: 1200px;
     height: 90px;
     border-color: white;
