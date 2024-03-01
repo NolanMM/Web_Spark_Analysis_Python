@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+    section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: black;
+      background-position: center;
+      background-size: cover;
+    }
+    .form-box {
+      width: 600px;
+      height: 650px;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    h2 {
+      font-size: 4em;
+      color: #fff;
+      text-align: center;
+    }
+    .inputbox {
+      margin: 80px 0;
+      border-bottom: 2px solid #fff;
+      position: relative;
+    }
+
+    .inputbox label {
+      position: absolute;
+      text-align: left;
+      left: 0;
+      color: #fff;
+      font-size: 1.8em;
+      pointer-events: none;
+      transition: .5s;
+      bottom: 10px;
+    }
+    input:focus ~ label{
+      margin-bottom: 40px;
+    }
+    input:valid ~ label {
+      transition: top 2s ease;
+      top: -50px;
+    }
+    input {
+      position: relative;
+      text-align: left;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 1.5em;
+      padding: 0 0 0 0;
+      width: 450px;
+      color: #fff;
+    }
+    .forget {
+      margin: -15px 0 15px;
+      font-size: 1.2em;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+    }
+    .forget .RememberMeCheckBox{
+      width: 20px;
+      height: 15px;
+    }
+    .forget .RememberMeCheckBox:checked {
+      background-color: #000;
+      color: #fff;
+    }
+    .forget label input {
+      margin-right: 3px;
+    }
+    .forget label a {
+      color: #fff;
+      text-decoration: none;
+      position: absolute;
+      right: 110px;
+    }
+    .forget label a:hover {
+      text-decoration: underline;
+    }
+    button {
+      border-radius: 10px;
+      border-style: solid;
+      border-width: 2px;
+      font-weight: 600;
+      color: #fff;
+      background-color: #000000;
+      border-color: white;
+      width: 200px;
+      height: 50px;
+    }
+    button:hover {
+      transition: .5s;
+      background-color: #fff;
+      color: #000;
+    }
+    .register {
+      font-size: .9em;
+      color: #fff;
+      text-align: center;
+      margin: 25px 0 10px;
+    }
+    .register p a {
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+    }
+    .register p a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <div class="form-box">
+      <div class="form-value">
+        <form class="text-center" action="/" method="post">
+          <h2>Login</h2>
+          <div class="inputbox">
+            <input id="usernameInput" name="usernameInput" type="text" required>
+            <label for="usernameInput">Username</label>
+          </div>
+          <div class="inputbox">
+            <input id="passwordInput" name="passwordInput" type="password" required>
+            <label for="passwordInput">Password</label>
+          </div>
+          <div class="forget">
+            <label for="RememberMe_checkbox"><input class="RememberMeCheckBox" type="checkbox" id="RememberMe_checkbox" name="RememberMe_checkbox">Remember Me
+              <a class="" href="/ForgetPassword" methods="get">Forget Password</a>
+            </label>
+          </div>
+          <br>
+          <button type="submit">Login</button>
+          <br>
+          <div class="register">
+            <p>Don't have an account <a methods="get" href="/Register" class="btn btn-link">Register</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+  <script src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
