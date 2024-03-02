@@ -1,1 +1,1 @@
-web: python app.py
+web: waitress-serve --listen=127.0.0.1 app:app
