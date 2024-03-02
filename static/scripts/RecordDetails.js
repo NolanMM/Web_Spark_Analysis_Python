@@ -40,9 +40,9 @@ function updateFlexContainer(data) {
     });
 }
 
-async function fetchMonthlyDataFromServer() {
+async function fetchHistoryRecordFromServer() {
     try {
-        const response = await fetch('/AnalysisChannel', {
+        const response = await fetch('/AnalysisDetails', {
             method: 'POST',
         });
         if (!response.ok) {
@@ -116,7 +116,12 @@ function getCookie(name) {
 }
 window.addEventListener("load", async function () {
     try {
-        const Data = await fetchMonthlyDataFromServer();
+        const Data = await fetchHistoryRecordFromServer();
+        const channel_name = getCookie('channel_name');
+        const channelNameElement = document.getElementById('channel_name');
+        if (channelNameElement) {
+            channelNameElement.textContent = channel_name + ' ';
+        }
         const flexData = {
             "TotalViews": Data.TotalViews,
             "TotalLikes": Data.TotalLikes,
@@ -279,11 +284,6 @@ window.addEventListener("load", async function () {
         }
     } catch (error) {
         console.error("Error fetching data:", error);
-    }
-    const channel_name = getCookie('channel_name');
-    const channelNameElement = document.getElementById('channel_name');
-    if (channelNameElement) {
-        channelNameElement.textContent = '@' + channel_name + ' ';
     }
 });
 

@@ -20,7 +20,10 @@ body{
 }
 
 .sectionNav{
-  height: 100px;
+    position: fixed;
+    z-index: 100;
+    top: 0;
+  height: 60px;
 }
 
 .nav-bar {
@@ -299,7 +302,10 @@ table {
   border: 5px solid transparent; /* optional */
 }
 thead {
+    position: sticky;
+    top: 0;
   background-image: linear-gradient(to bottom left, #d90000, #5d0303);
+    z-index: 50;
 }
 /*all cells in table customization*/
 tbody {
@@ -333,13 +339,17 @@ td {
     color: white;
     margin-bottom: 100px;
 }
-
+.table-container_{
+    max-height: 800px;
+    overflow-y: auto;
+}
 .section4 h1{
     text-align: center;
     padding-top: 100px;
     margin-bottom:100px;
     font-size: 4em;
 }
+
 .scrollable-table-body {
     max-height: 400px; /* Set the maximum height as desired */
     overflow-y: auto; /* Enable vertical scrollbar */
@@ -358,3 +368,26 @@ td {
     width: 100%;
     margin-top: 100px;
 }
+
+.footer >button{
+    margin-top: 150px;
+    width: 280px;
+    height: 80px;
+    font-size: 2.2em;
+    border-radius: 15px;
+    background-color: #000000;
+    color: white;
+    border-color: rgba(255, 255, 255, 0);
+    border-width: 3px;
+    border-style: solid;
+
+}
+
+.footer >button:hover {
+    color: white;
+    font-weight: bold;
+    transform: scale(1.05);
+    transition: transform 0.5s ease;
+
+}
+

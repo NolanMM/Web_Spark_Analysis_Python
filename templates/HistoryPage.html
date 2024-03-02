@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>History Analysis</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/1.0.2/chartjs-plugin-annotation.min.js"></script>
+    <link rel="stylesheet" href="../static/css/analysis.css" />
+    <script src="../static/scripts/history.js"></script>
+    <style>
+        body {
+            opacity: 0;
+            transition: opacity 3s;
+        }
+    </style>
+  </head>
+  <body onload="document.body.style.opacity='1'">
+    <div class="sectionNav">
+      <div class="nav-bar">
+        <nav class="navbar">
+          <a class="navbar-brand" href="/" methods="GET">Youtube Analysis Web Page</a>
+          <div class="collapse navbar-collapse Link" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item active">
+                <a class="nav-link" href="/" methods="GET">Home</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/Analysis" methods="GET">Analysis</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/History" methods="GET">History</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Profile</a>
+              </li>
+            </ul>
+          </div>
+          <form class="logout_button_form" action="/Logout" method="GET">
+              <button type="submit">Logout</button>
+          </form>
+        </nav>
+      </div>
+    </div>
+    <div class="section4" style="height: 500px;">
+        <h1>Table Reports</h1>
+        <div class="table-container_" style="overflow-y: auto; max-height: 500px;">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th id="channel_id" style="width: 550px;">Channel ID</th>
+                        <th id="channel_name" style="width: 400px;">Channel Name</th>
+                        <th id="date_created">Searched Date</th>
+                        <th id="Details" style="width: 300px;">Additional Information</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+  </body>
+</html>

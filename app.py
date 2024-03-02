@@ -1,11 +1,17 @@
+import json
+
 from flask import Flask, render_template, request, make_response, Response, url_for, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import secrets, string
+import time
 
-from entities.User_Model import User, User_db,User_app
-from entities.Session_Model import Session, Session_db,Session_app
+from entities.History_Search_Model import History_app, History_db, HistoryRecord
+from entities.User_Model import User, User_db, User_app
+from entities.Session_Model import Session, Session_db, Session_app
 from services.AuthorizedProcess import AuthorizedProcess
+from services.Cached_Services import get_report_data, get_report_history_data
+from services.Youtube_Analysis_Services import PysparkModule
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///SparkWeb.db'
@@ -21,7 +27,6 @@ def generate_session_id(length=40):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     session_id = request.cookies.get('session_id')
-    expires_at = 0
     if request.method == 'POST':
         try:
             if session_id is None:
@@ -36,9 +41,8 @@ def index():
 
                 authorized_process = AuthorizedProcess()
                 is_valid = authorized_process.login(username, password)
-
+                expires_at = datetime.now() + timedelta(days=7)
                 if is_valid:
-                    expires_at = datetime.now() + timedelta(days=7)
                     new_session = Session(session_id=session_id, date_created=datetime.utcnow(), is_logged_in=True, remember_me=remember_me, session_id_expires_at=expires_at)
                     try:
                         with Session_app.app_context():
@@ -46,11 +50,18 @@ def index():
                             Session_db.session.commit()
                     except Exception as e:
                         return f'There was an issue adding your account: {e}'
+
                     response = make_response(render_template('HomePage.html'))
+                    is_cached = request.cookies.get('cached_valid')
+                    if is_cached == "True":
+                        response.delete_cookie('cached_valid')
+                    channel_name = request.cookies.get('channel_name')
+                    if channel_name is not None:
+                        response.delete_cookie('channel_name')
+                    response.set_cookie('username', username, expires=expires_at)
                     response.set_cookie('session_id', session_id, expires=expires_at)
                     return response
                 else:
-                    expires_at = datetime.now() + timedelta(days=7)
                     new_session = Session(session_id=session_id, date_created=datetime.utcnow(), is_logged_in=False, remember_me=False, session_id_expires_at=expires_at)
                     try:
                         with Session_app.app_context():
@@ -68,7 +79,13 @@ def index():
                     if session:
                         expires_at = session.session_id_expires_at
                         if expires_at > datetime.utcnow() and session.is_logged_in:
-                            return render_template('HomePage.html')
+                            response = make_response(render_template('HomePage.html'))
+                            is_cached = request.cookies.get('cached_valid')
+                            if is_cached == "True":
+                                response.delete_cookie('cached_valid')
+                            channel_name = request.cookies.get('channel_name')
+                            if channel_name is not None:
+                                response.delete_cookie('channel_name')
                         else:
                             username = request.form['usernameInput']
                             password = request.form['passwordInput']
@@ -84,10 +101,19 @@ def index():
                             if is_valid:
                                 session.is_logged_in = True
                                 session.remember_me = remember_me
+                                # set cookie name username
+                                response = make_response(render_template('HomePage.html'))
+                                is_cached = request.cookies.get('cached_valid')
+                                if is_cached == "True":
+                                    response.delete_cookie('cached_valid')
+                                channel_name = request.cookies.get('channel_name')
+                                if channel_name is not None:
+                                    response.delete_cookie('channel_name')
+                                response.set_cookie('username', username, expires=expires_at)
                                 with Session_app.app_context():
                                     Session_db.session.add(session)
                                     Session_db.session.commit()
-                                return render_template('HomePage.html')
+                                return response
                             else:
                                 session.is_logged_in = False
                                 session.remember_me = False
@@ -116,7 +142,16 @@ def index():
                                     Session_db.session.commit()
                             except Exception as e:
                                 return f'There was an issue adding your account: {e}'
-                            return render_template('HomePage.html')
+                            response = make_response(render_template('HomePage.html'))
+                            is_cached = request.cookies.get('cached_valid')
+                            if is_cached == "True":
+                                response.delete_cookie('cached_valid')
+                            channel_name = request.cookies.get('channel_name')
+                            if channel_name is not None:
+                                response.delete_cookie('channel_name')
+                            response.set_cookie('username', username, expires=expires_at)
+                            response.set_cookie('session_id', session_id, expires=expires_at)
+                            return response
                         else:
                             new_session = Session(session_id=session_id, date_created=datetime.utcnow(), is_logged_in=False, remember_me=False, session_id_expires_at=expires_at)
                             with Session_app.app_context():
@@ -148,7 +183,14 @@ def index():
                 expires_at = session.session_id_expires_at
                 if expires_at > datetime.utcnow():
                     if session.is_logged_in:
-                        return render_template('HomePage.html')
+                        response = make_response(render_template('HomePage.html'))
+                        is_cached = request.cookies.get('cached_valid')
+                        if is_cached == "True":
+                            response.delete_cookie('cached_valid')
+                        channel_name = request.cookies.get('channel_name')
+                        if channel_name is not None:
+                            response.delete_cookie('channel_name')
+                        return response
                     else:
                         return render_template("LoginPage.html")
                 else:
@@ -157,7 +199,7 @@ def index():
                     return render_template('LoginPage.html')
             else:
                 expires_at = datetime.now() + timedelta(days=7)
-                new_session = Session(session_id=session_id, date_created=datetime.utcnow(), is_logged_in=False, remember_me = False, session_id_expires_at=expires_at)
+                new_session = Session(session_id=session_id, date_created=datetime.utcnow(), is_logged_in=False, remember_me=False, session_id_expires_at=expires_at)
                 try:
                     with Session_app.app_context():
                         Session_db.session.add(new_session)
@@ -187,6 +229,15 @@ def register():
             if is_registered:
                 expires_at = datetime.now() + timedelta(days=7)
                 response = make_response(render_template('LoginPage.html'))
+                is_cached = request.cookies.get('cached_valid')
+                if is_cached == "True":
+                    response.delete_cookie('cached_valid')
+                channel_name = request.cookies.get('channel_name')
+                if channel_name is not None:
+                    response.delete_cookie('channel_name')
+                username = request.cookies.get('username')
+                if username is not None:
+                    response.delete_cookie('username')
                 response.set_cookie('session_id', session_id, expires=expires_at)
                 return response
             else:
@@ -219,10 +270,22 @@ def logout() -> Response | str:
             new_session = Session(session_id=session_id, date_created=date_created, is_logged_in=False, remember_me=False, session_id_expires_at=expires_at)
             Session_db.session.add(new_session)
             Session_db.session.commit()
+        # reset the cookie
         response = make_response(render_template('LoginPage.html'))
         response.set_cookie('session_id', session_id, expires=expires_at)
-        return redirect('/')
-    return redirect('/')
+        response.delete_cookie('username')
+        response.delete_cookie('channel_name')
+        response.delete_cookie('cached_valid')
+        return response
+    else:
+        username = request.cookies.get('username')
+        if username:
+            response = make_response(render_template('LoginPage.html'))
+            response.delete_cookie('username')
+            response.delete_cookie('channel_name')
+            response.delete_cookie('cached_valid')
+            return response
+    return render_template('LoginPage.html')
 
 
 @app.route('/HomePage', methods=['POST', 'GET'])
@@ -234,17 +297,45 @@ def home_page():
         if session:
             expires_at = session.session_id_expires_at
             if expires_at > datetime.utcnow() and session.is_logged_in:
-                return render_template('HomePage.html')
+                response = make_response(render_template('HomePage.html'))
+                is_cached = request.cookies.get('cached_valid')
+                if is_cached == "True":
+                    response.delete_cookie('cached_valid')
+                channel_name = request.cookies.get('channel_name')
+                if channel_name is not None:
+                    response.delete_cookie('channel_name')
+                return response
             else:
-                return render_template('LoginPage.html')
+                response = make_response(render_template('LoginPage.html'))
+                is_cached = request.cookies.get('cached_valid')
+                if is_cached == "True":
+                    response.delete_cookie('cached_valid')
+                channel_name = request.cookies.get('channel_name')
+                if channel_name is not None:
+                    response.delete_cookie('channel_name')
+                return response
         else:
-            return render_template('LoginPage.html')
+            response = make_response(render_template('LoginPage.html'))
+            is_cached = request.cookies.get('cached_valid')
+            if is_cached == "True":
+                response.delete_cookie('cached_valid')
+            channel_name = request.cookies.get('channel_name')
+            if channel_name is not None:
+                response.delete_cookie('channel_name')
+            return response
     else:
-        return render_template('LoginPage.html')
+        response = make_response(render_template('LoginPage.html'))
+        is_cached = request.cookies.get('cached_valid')
+        if is_cached == "True":
+            response.delete_cookie('cached_valid')
+        channel_name = request.cookies.get('channel_name')
+        if channel_name is not None:
+            response.delete_cookie('channel_name')
+        return response
 
 
-@app.route('/AnalysisChannel', methods=['GET','POST'])
-def analysis_channel():
+@app.route('/AnalysisChannel', methods=['GET', 'POST'])
+def analysis_channel_task():
     session_id = request.cookies.get('session_id')
     if request.method == 'GET':
         if session_id is not None:
@@ -253,11 +344,11 @@ def analysis_channel():
             if session:
                 expires_at = session.session_id_expires_at
                 if expires_at > datetime.utcnow() and session.is_logged_in:
-                    channelName = request.args.get('inputchannel_name')
-                    if channelName == "" or channelName is None:
+                    channel_name = request.args.get('inputchannel_name')
+                    if channel_name == "" or channel_name is None:
                         return render_template('HomePage.html')
                     response = make_response(render_template('AnalysisPage.html'))
-                    response.set_cookie('channel_name', channelName, expires=expires_at)
+                    response.set_cookie('channel_name', channel_name, expires=expires_at)
                     return response
                 else:
                     return render_template('LoginPage.html')
@@ -274,8 +365,23 @@ def analysis_channel():
                 if session:
                     expires_at = session.session_id_expires_at
                     if expires_at > datetime.utcnow() and session.is_logged_in:
-                        data = get_data()
-                        return jsonify(data)
+                        channel_name_search = '@' + channel_name
+                        username = request.cookies.get('username')
+                        transformed_data,cached_valid = get_report_data(channel_name_search)
+                        if transformed_data is not None:
+                            pyspark_module = PysparkModule(channel_name_search)
+                            channel_id = pyspark_module.get_channel_id()
+                            transformed_data_to_string = json.dumps(transformed_data)
+                            new_history_record = HistoryRecord(username=username, date_created=datetime.utcnow(), channel_id=channel_id, channel_name=channel_name_search, data=transformed_data_to_string)
+                            with History_app.app_context():
+                                History_db.session.add(new_history_record)
+                                History_db.session.commit()
+                            response = make_response(jsonify(transformed_data))
+                            cached_valid_string = "True" if cached_valid else "False"
+                            response.set_cookie('cached_valid', cached_valid_string, expires=expires_at)
+                            return response
+                        else:
+                            return render_template('HomePage.html')
                     else:
                         return render_template('LoginPage.html')
                 else:
@@ -286,50 +392,140 @@ def analysis_channel():
             return render_template('LoginPage.html')
 
 
-def get_data():
-    table_data = [
-        {
-            "VideoID": "1",
-            "VideoTitle": "Sample Video 1",
-            "ViewCount": 1000,
-            "LikeCount": 500,
-            "DislikesCount": 50,
-            "CommentsCount": 200,
-            "AdditionalInformation": "Additional Info 1"
-        },
-        {
-            "VideoID": "2",
-            "VideoTitle": "Sample Video 2",
-            "ViewCount": 2000,
-            "LikeCount": 1000,
-            "DislikesCount": 100,
-            "CommentsCount": 400,
-            "AdditionalInformation": "Additional Info 2"
-        },
-        {
-            "VideoID": "3",
-            "VideoTitle": "Sample Video 3",
-            "ViewCount": 3000,
-            "LikeCount": 1500,
-            "DislikesCount": 200,
-            "CommentsCount": 600,
-            "AdditionalInformation": "Additional Info 3"
-        }
-    ]
-    data = {
-        'table_data': table_data,
-        'TotalViews': 10000,
-        'TotalLikes': 2000,
-        'TotalDislikes': 500,
-        'TotalEngagement': 1200,
-        'labels': ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-                   "November", "December"],
-        'views': [1000, 1200, 1300, 1500, 1400, 1600, 1700, 1800, 1900, 2000, 2100, 2200],
-        'likes': [200, 220, 230, 250, 240, 260, 270, 280, 290, 300, 310, 320],
-        'dislikes': [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105],
-        'engagement': [120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230]
-    }
-    return data
+@app.route('/History', methods=['GET', 'POST'])
+def history():
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        if request.method == 'GET':
+            with Session_app.app_context():
+                session = Session.query.filter_by(session_id=session_id).first()
+            if session:
+                expires_at = session.session_id_expires_at
+                if expires_at > datetime.utcnow() and session.is_logged_in:
+                    username = request.cookies.get('username')
+                    if username is not None:
+                        return render_template('HistoryPage.html')
+                    else:
+                        return render_template('HomePage.html')
+                else:
+                    return render_template('LoginPage.html')
+            else:
+                return render_template('LoginPage.html')
+        else:
+            username = request.cookies.get('username')
+            if username is not None:
+                history_data,cached_valid = get_report_history_data(username)
+                if history_data is not None:
+                    response = make_response(jsonify(history_data))
+                    cached_valid_string = "True" if cached_valid else "False"
+                    response.set_cookie('cached_valid', cached_valid_string, expires=datetime.utcnow() + timedelta(days=7))
+                    response.set_cookie('username', username, expires=datetime.utcnow() + timedelta(days=7))
+                    return response
+                else:
+                    return render_template('HomePage.html')
+            else:
+                return render_template('HomePage.html')
+
+
+@app.route('/Analysis', methods=['GET'])
+def analysis_search():
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        if request.method == 'GET':
+            with Session_app.app_context():
+                session = Session.query.filter_by(session_id=session_id).first()
+            if session:
+                expires_at = session.session_id_expires_at
+                username = request.cookies.get('username')
+                if expires_at > datetime.utcnow() and session.is_logged_in:
+                    if username is not None:
+                        return render_template('AnalysisSearchPage.html')
+                    else:
+                        return render_template('HomePage.html')
+                else:
+                    return render_template('LoginPage.html')
+            else:
+                return render_template('LoginPage.html')
+    else:
+        return render_template('HomePage.html')
+
+
+@app.route('/AnalysisDetails', methods=['GET', 'POST'])
+def history_record_detail_page():
+    session_id = request.cookies.get('session_id')
+    if request.method == 'GET':
+        username = request.cookies.get('username')
+        if username is None:
+            return render_template('HistoryPage.html')
+        else:
+            channel_id = request.args.get('channel_id')
+            date_created = request.args.get('date_created')
+            channel_name = request.args.get('channel_name')
+            with Session_app.app_context():
+                session = Session.query.filter_by(session_id=session_id).first()
+            if session:
+                expires_at = session.session_id_expires_at
+                if expires_at > datetime.utcnow() and session.is_logged_in:
+                    response = make_response(render_template('HistoryRecordDetailPage.html'))
+                    response.set_cookie('channel_id', channel_id, expires=expires_at)
+                    response.set_cookie('date_created', date_created, expires=expires_at)
+                    response.set_cookie('channel_name', channel_name, expires=expires_at)
+                    history_record_list, cached_valid = get_report_history_data(username)
+                    if cached_valid:
+                        cached_valid = "True"
+                    else:
+                        cached_valid = "False"
+                    response.set_cookie('cached_valid', cached_valid, expires=expires_at)
+                    return response
+                else:
+                    return render_template('HomePage.html')
+            else:
+                return render_template('HomePage.html')
+    else:
+        username = request.cookies.get('username')
+        channel_id = request.cookies.get('channel_id')
+        date_created = request.cookies.get('date_created')
+        channel_name = request.cookies.get('channel_name')
+        if username is None or channel_id is None or date_created is None:
+            return render_template('HistoryPage.html')
+        else:
+            dt_object = datetime.strptime(date_created, "%a, %d %b %Y %H:%M:%S %Z")
+            formatted_date = dt_object.strftime('%Y-%m-%d %H:%M:%S')
+
+            history_record_list, cached_valid = get_report_history_data(username)
+            if cached_valid:
+                record_data = dict()
+                for record in history_record_list:
+                    rounded_dt = record['date_created']
+                    rounded_dt = rounded_dt.replace(microsecond=0)
+                    if record['channel_id'] == channel_id and str(rounded_dt) == str(formatted_date):
+                        record_data.update(record['data'])
+                if record_data is not None:
+                    response = make_response(jsonify(record_data))
+                    cached_valid_string = "True" if cached_valid else "False"
+                    response.set_cookie('cached_valid', cached_valid_string, expires=datetime.utcnow() + timedelta(days=7))
+                    response.set_cookie('channel_name', channel_name, expires=datetime.utcnow() + timedelta(days=7))
+                    return response
+                else:
+                    return render_template('HistoryPage.html')
+            else:
+                if history_record_list is not None:
+                    record_data = dict()
+                    for record in history_record_list:
+                        rounded_dt = record['date_created']
+                        rounded_dt = rounded_dt.replace(microsecond=0)
+                        if record['channel_id'] == channel_id and str(rounded_dt) == str(formatted_date):
+                            record_data.update(record['data'])
+                    if record_data is not None:
+                        response = make_response(jsonify(record_data))
+                        cached_valid_string = "True" if cached_valid else "False"
+                        response.set_cookie('cached_valid', cached_valid_string, expires=datetime.utcnow() + timedelta(days=7))
+                        response.set_cookie('channel_name', channel_name, expires=datetime.utcnow() + timedelta(days=7))
+                        return response
+                    else:
+                        return render_template('HistoryPage.html')
+                else:
+                    return render_template('HistoryPage.html')
 
 
 if __name__ == '__main__':

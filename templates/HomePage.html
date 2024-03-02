@@ -10,23 +10,23 @@
 <div>
   <div class="nav-bar">
     <nav class="navbar navbar-expand-lg ">
-      <a class="navbar-brand" href="#">Youtube Analysis Web Page</a>
+      <a class="navbar-brand" href="/" methods="GET">Youtube Analysis Web Page</a>
       <div class="collapse navbar-collapse Link" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item active">
             <a class="nav-link" href="/">Home</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/AnalysisChannel">Analysis</a>
+            <a class="nav-link" href="/Analysis" methods="GET">Analysis</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">History</a>
+            <a class="nav-link" href="/History" methods="GET">History</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Profile</a>
           </li>
           <li class="nav-item">
-            <form class="logout_button_form" action="/Logout" method="get">
+            <form class="logout_button_form" action="/Logout" method="GET">
               <button type="submit">Logout</button>
             </form>
           </li>
@@ -39,17 +39,27 @@
   <div class="hero-text">
       <h1> <span style="color: darkred;">Youtube</span> Analysis</h1>
       <p>Get the analysis of your youtube channel</p>
-      <button type="button" class="Get_Started_btn">Get Started</button>
+      <button type="button" class="Get_Started_btn" id="Get_Started_btn">Get Started</button>
   </div>
 </div>
-<div class="AnalysisYouTube-content">
+<div class="AnalysisYouTube-content" id="GetStartedFrom">
   <div class="AnalysisYouTube-text">
       <h1> <span style="color: darkred;">Youtube</span> Analysis</h1>
       <p>Get the analysis of your youtube channel</p>
-      <form class="input_channel" action="/AnalysisChannel" method="get">
+      <form class="input_channel" action="/AnalysisChannel" method="GET">
         <input type="text" class="inputchannel_name" id="inputchannel_name" name="inputchannel_name" placeholder="Enter Channel Name">
         <button type="submit" class="Get_Started_btn">Search</button>
       </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+  let Get_Started_btn = document.getElementById('Get_Started_btn');
+  let page1 = document.getElementById('GetStartedFrom');
+  Get_Started_btn.addEventListener('click', function() {
+    page1.scrollIntoView({ behavior: 'smooth' });
+  });
+  });
+</script>
 {%endblock%}
