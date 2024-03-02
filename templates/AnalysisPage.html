@@ -204,7 +204,7 @@
         }
 
         const is_cached = getCookie('cached_valid');
-        if(is_cached == "False")
+        if(is_cached == "False" || is_cached == null)
         {
             const progressInterval = setInterval(updateProgress, updateInterval);
             setTimeout(() => {
