@@ -1,3 +1,4 @@
+from entities.Forgot_Password_Model import ForgotPassword_app, ForgotPassword_db
 from entities.User_Model import User, User_db,User_app
 from entities.Session_Model import Session, Session_db,Session_app
 from entities.History_Search_Model import HistoryRecord, History_db, History_app
@@ -13,4 +14,8 @@ with Session_app.app_context():
 with History_app.app_context():
     History_db.create_all()
     History_db.session.commit()
+
+with ForgotPassword_app.app_context():
+    ForgotPassword_db.create_all()
+    ForgotPassword_db.session.commit()
 
