@@ -544,7 +544,7 @@ def history_record_detail_page():
                     return render_template('HistoryPage.html')
 
 
-@app.route('/ForgotPassword', methods=['GET', 'POST', 'PUT', 'PATCH'])
+@app.route('/ForgotPassword', methods=['GET', 'POST'])
 def forgot_password_page():
     session_id = request.cookies.get('session_id')
     if request.method == 'GET':
@@ -556,157 +556,265 @@ def forgot_password_page():
                 if expires_at > datetime.utcnow() and session.is_logged_in:
                     return render_template('HomePage.html')
                 else:
-                    return render_template('ForgotPasswordR1.html')
+                    return render_template('ForgotPasswordProcess/ForgotPasswordR1.html')
             else:
                 return render_template('LoginPage.html')
         else:
             return render_template('LoginPage.html')
 
     elif request.method == 'POST':
-        if session_id is not None:
-            with Session_app.app_context():
-                session = Session.query.filter_by(session_id=session_id).first()
-            if session:
-                expires_at = session.session_id_expires_at
-                if expires_at > datetime.utcnow() and session.is_logged_in:
-                    return render_template('HomePage.html')
-                else:
-                    user_name = request.form['usernameInput']
-                    email_service = EmailService()
-                    forgot_password_service = ForgotPasswordService()
-                    user_name_not_none = "" if user_name is None else user_name
-                    is_email_valid = forgot_password_service.get_email_by_username(user_name_not_none)
-                    if is_email_valid:
-                        is_sent = email_service.send_verification_email(forgot_password_service.email,
-                                                                        forgot_password_service.verification_code,
-                                                                        forgot_password_service.link_reset)
-                        if is_sent:
-                            response = make_response(render_template('ForgotPasswordR2.html'))
-                            response.set_cookie('username', user_name, expires=expires_at)
-                            response.set_cookie('session_id', session_id, expires=expires_at)
-                            return response
+        if request.form.get('_method') == 'POST':
+            if session_id is not None:
+                with Session_app.app_context():
+                    session = Session.query.filter_by(session_id=session_id).first()
+                if session:
+                    expires_at = session.session_id_expires_at
+                    if expires_at > datetime.utcnow() and session.is_logged_in:
+                        return render_template('HomePage.html')
+                    else:
+                        user_name = request.form['usernameInput']
+                        email_service = EmailService()
+                        forgot_password_service = ForgotPasswordService()
+                        user_name_not_none = "" if user_name is None else user_name
+                        is_email_valid = forgot_password_service.get_email_by_username(user_name_not_none)
+                        if is_email_valid:
+                            is_sent = email_service.send_verification_email(forgot_password_service.username,
+                                                                            forgot_password_service.email,
+                                                                            forgot_password_service.verification_code,
+                                                                            forgot_password_service.link_reset)
+                            if is_sent:
+                                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR2.html'))
+                                response.set_cookie('username', user_name, expires=expires_at)
+                                response.set_cookie('session_id', session_id, expires=expires_at)
+                                return response
+                            else:
+                                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                                response.delete_cookie('username')
+                                return response
                         else:
-                            response = make_response(render_template('ForgotPasswordR1.html'))
+                            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR3.html'))
                             response.delete_cookie('username')
                             return response
-                    else:
-                        response = make_response(render_template('ForgotPasswordR1.html'))
-                        response.delete_cookie('username')
-                        return response
+                else:
+                    return render_template('LoginPage.html')
             else:
                 return render_template('LoginPage.html')
-        else:
-            return render_template('LoginPage.html')
-    elif request.method == 'PUT':
-        if session_id is not None:
-            with Session_app.app_context():
-                session = Session.query.filter_by(session_id=session_id).first()
-            if session:
-                expires_at = session.session_id_expires_at
-                if expires_at > datetime.utcnow() and session.is_logged_in:
-                    return render_template('HomePage.html')
-                else:
-                    code_input = request.form['codeInput']
-                    username = request.cookies.get('username')
-                    if username is not None:
-                        if code_input is not None or code_input != "":
-                            record, is_valid = check_verification_code(code_input, username)
-                            if is_valid:
-                                # with ForgotPassword_app.app_context():
-                                #     ForgotPassword_db.session.delete(record)
-                                #     ForgotPassword_db.session.commit()
-                                response = make_response(render_template('ForgotPasswordR3.html'))
-                                response.set_cookie('username', username, expires=expires_at)
-                                response.set_cookie('code_input', record.verification_code, expires=expires_at)
-                                return response
-                            else:
-                                return render_template('ForgotPasswordPage')
-                        else:
-                            response = make_response(render_template('ForgotPasswordR2.html'))
-                            return response
+        elif request.form.get('_method') == 'PUT':
+            if session_id is not None:
+                with Session_app.app_context():
+                    session = Session.query.filter_by(session_id=session_id).first()
+                if session:
+                    expires_at = session.session_id_expires_at
+                    if expires_at > datetime.utcnow() and session.is_logged_in:
+                        return render_template('HomePage.html')
                     else:
-                        response = make_response(render_template('ForgotPasswordR1.html'))
-                        response.delete_cookie('username')
-                        return response
-            else:
-                response = make_response(render_template('LoginPage.html'))
-                response.delete_cookie('username')
-                return response
-        else:
-            response = make_response(render_template('ForgotPasswordR1.html'))
-            response.delete_cookie('username')
-            return response
-
-    elif request.method == 'PATCH':
-        if session_id is not None:
-            with Session_app.app_context():
-                session = Session.query.filter_by(session_id=session_id).first()
-            if session:
-                expires_at = session.session_id_expires_at
-                if expires_at > datetime.utcnow() and session.is_logged_in:
-                    return render_template('HomePage.html')
-                else:
-                    new_password = request.form['newPassword']
-                    confirm_password = request.form['confirmPassword']
-                    username = request.cookies.get('username')
-                    code_input = request.cookies.get('code_input')
-                    if username is None:
-                        response = make_response(render_template('ForgotPasswordR1.html'))
-                        response.delete_cookie('username')
-                        response.delete_cookie('code_input')
-                        return response
-                    else:
-                        if code_input is not None:
-                            if new_password == confirm_password:
+                        code_input = request.form['verification_code']
+                        username = request.cookies.get('username')
+                        if username is not None:
+                            if code_input is not None or code_input != "":
                                 record, is_valid = check_verification_code(code_input, username)
                                 if is_valid:
-                                    with User_app.app_context():
-                                        user = User.query.filter_by(username=username).first()
-                                        if user:
-                                            User_db.session.delete(user)
-                                            User_db.session.commit()
-                                        user = User(username=username, password=new_password, email=record.email)
-                                        User_db.session.add(user)
-                                        User_db.session.commit()
-
-                                    with ForgotPassword_app.app_context():
-                                        ForgotPassword_db.session.delete(record)
-                                        ForgotPassword_db.session.commit()
-
-                                    response = make_response(render_template('ForgotPasswordR4.html'))
-                                    response.delete_cookie('username')
-                                    response.delete_cookie('code_input')
-                                    response.delete_cookie('is_cached')
-                                    response.set_cookie("ForgotPassword", "True",
-                                                        expires=datetime.utcnow() + timedelta(seconds=12))
+                                    # with ForgotPassword_app.app_context():
+                                    #     ForgotPassword_db.session.delete(record)
+                                    #     ForgotPassword_db.session.commit()
+                                    response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR3.html'))
+                                    response.set_cookie('username', username, expires=expires_at)
+                                    response.set_cookie('code_input', record.verification_code, expires=expires_at)
                                     return response
                                 else:
-                                    response = make_response(render_template('ForgotPasswordR3.html'))
-                                    return response
+                                    return render_template('ForgotPasswordProcess/ForgotPasswordR1.html')
                             else:
-                                response = make_response(render_template('ForgotPasswordR3.html'))
+                                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR2.html'))
                                 return response
                         else:
-                            response = make_response(render_template('ForgotPasswordR2.html'))
+                            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                            response.delete_cookie('username')
+                            return response
+                else:
+                    response = make_response(render_template('LoginPage.html'))
+                    response.delete_cookie('username')
+                    return response
+            else:
+                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                response.delete_cookie('username')
+                return response
+
+        elif request.form.get('_method') == 'PATCH':
+            if session_id is not None:
+                with Session_app.app_context():
+                    session = Session.query.filter_by(session_id=session_id).first()
+                if session:
+                    expires_at = session.session_id_expires_at
+                    if expires_at > datetime.utcnow() and session.is_logged_in:
+                        return render_template('HomePage.html')
+                    else:
+                        new_password = request.form['new_password']
+                        confirm_password = request.form['confirm_new_password']
+                        username = request.cookies.get('username')
+                        code_input = request.cookies.get('code_input')
+                        if username is None:
+                            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                            response.delete_cookie('username')
                             response.delete_cookie('code_input')
                             return response
+                        else:
+                            if code_input is not None:
+                                if new_password == confirm_password:
+                                    record, is_valid = check_verification_code(code_input, username)
+                                    if is_valid:
+                                        with User_app.app_context():
+                                            user = User.query.filter_by(username=username).first()
+                                            if user:
+                                                User_db.session.delete(user)
+                                                User_db.session.commit()
+
+                                            authorized_process = AuthorizedProcess()
+                                            is_registered = authorized_process.register(username, new_password, user.email)
+
+                                        with ForgotPassword_app.app_context():
+                                            ForgotPassword_db.session.delete(record)
+                                            ForgotPassword_db.session.commit()
+
+                                        with Session_app.app_context():
+                                            session = Session.query.filter_by(session_id=session_id).first()
+                                            if session:
+                                                Session_db.session.delete(session)
+                                                Session_db.session.commit()
+                                            new_session = Session(session_id=session_id, date_created=datetime.utcnow(),
+                                                                  is_logged_in=False, remember_me=False,
+                                                                  session_id_expires_at=datetime.utcnow() + timedelta(days=7))
+                                            Session_db.session.add(new_session)
+                                            Session_db.session.commit()
+
+                                        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR4.html'))
+                                        response.delete_cookie('username')
+                                        response.delete_cookie('code_input')
+                                        response.delete_cookie('is_cached')
+                                        response.set_cookie("ForgotPassword", "True",
+                                                            expires=datetime.utcnow() + timedelta(seconds=12))
+                                        return response
+                                    else:
+                                        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR3.html'))
+                                        return response
+                                else:
+                                    response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR3.html'))
+                                    return response
+                            else:
+                                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR2.html'))
+                                response.delete_cookie('code_input')
+                                return response
+                else:
+                    response = make_response(render_template('LoginPage.html'))
+                    response.delete_cookie('username')
+                    response.delete_cookie('code_input')
+                    return response
             else:
-                response = make_response(render_template('LoginPage.html'))
+                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
                 response.delete_cookie('username')
                 response.delete_cookie('code_input')
                 return response
+
         else:
-            response = make_response(render_template('ForgotPasswordR1.html'))
+            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
             response.delete_cookie('username')
             response.delete_cookie('code_input')
             return response
-
     else:
-        response = make_response(render_template('ForgotPasswordR1.html'))
+        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
         response.delete_cookie('username')
         response.delete_cookie('code_input')
         return response
 
 
+@app.route('/ForgotPassword/Back', methods=['GET'])
+def forgot_password_back():
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        with Session_app.app_context():
+            session = Session.query.filter_by(session_id=session_id).first()
+        if session:
+            expires_at = session.session_id_expires_at
+            if expires_at > datetime.utcnow() and session.is_logged_in:
+                response = make_response(render_template('HomePage.html'))
+                response.delete_cookie('username')
+                response.delete_cookie('code_input')
+                return response
+            else:
+                if request.form.get('id_Page') == 'response_1':
+                    response = make_response(render_template('LoginPage.html'))
+                    response.delete_cookie('username')
+                    response.delete_cookie('code_input')
+                    response.delete_cookie('is_cached')
+                    return response
+                elif request.form.get('id_Page') == 'response_2':
+                    if request.cookies.get('username') is not None:
+                        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                        response.delete_cookie('username')
+                        return response
+                    else:
+                        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                        return response
+                elif request.form.get('id_Page') == 'response_3':
+                    if request.cookies.get('username') is None:
+                        response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                        response.delete_cookie('username')
+                        response.delete_cookie('code_input')
+                        return response
+                    else:
+                        if request.cookies.get('code_input') is None:
+                            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR2.html'))
+                            response.delete_cookie('code_input')
+                            return response
+                        else:
+                            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR2.html'))
+                            response.delete_cookie('code_input')
+                            return response
+                else:
+                    return render_template('ForgotPasswordProcess/ForgotPasswordR1.html')
+        else:
+            return render_template('LoginPage.html')
+    else:
+        return render_template('LoginPage.html')
+
+
+@app.route('/ForgotPasswordEmail', methods=['GET'])
+def forgot_password_email():
+    session_id = request.cookies.get('session_id')
+    if session_id is not None:
+        with Session_app.app_context():
+            session = Session.query.filter_by(session_id=session_id).first()
+        if session:
+            expires_at = session.session_id_expires_at
+            if expires_at > datetime.utcnow() and session.is_logged_in:
+                return render_template('HomePage.html')
+            else:
+                return render_template('LoginPage.html')
+        else:
+            return render_template('LoginPage.html')
+    else:
+        code_input = request.args.get('code')
+        username = request.args.get('username')
+        if username is not None:
+            if code_input is not None or code_input != "":
+                record, is_valid = check_verification_code(code_input, username)
+                if is_valid:
+                    # with ForgotPassword_app.app_context():
+                    #     ForgotPassword_db.session.delete(record)
+                    #     ForgotPassword_db.session.commit()
+                    response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR3.html'))
+                    response.set_cookie('username', username, expires=datetime.utcnow() + timedelta(days=1))
+                    response.set_cookie('code_input', record.verification_code, expires=datetime.utcnow() + timedelta(days=1))
+                    return response
+                else:
+                    return render_template('ForgotPasswordProcess/ForgotPasswordR1.html')
+            else:
+                response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+                return response
+        else:
+            response = make_response(render_template('ForgotPasswordProcess/ForgotPasswordR1.html'))
+            response.delete_cookie('username')
+            return response
+
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8000)

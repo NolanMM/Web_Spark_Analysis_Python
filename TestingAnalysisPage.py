@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('AnalysisPage.html')
+    return render_template("ForgotPasswordProcess/ForgotPasswordR2.html")
 
 
 @app.route('/get_data')
