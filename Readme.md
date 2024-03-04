@@ -1,7 +1,6 @@
 <br />
 <div align="center">
   <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="https://drive.google.com/uc?id=1w3mfBR7NBooRlJWaQRmIcoNRbFROo32A" alt="Logo" width="300" height="180">
   </a>
   <p align="center">
     <br />
@@ -61,6 +60,8 @@ Harness the power of data-driven decision-making with our Flask Python web appli
 [![python][python]][python-url] [![Flask][Flask]][Flask-url] [![Gunicorn][Gunicorn]][Gunicorn-url] [![Heroku][Heroku]][Heroku-url] [![Spark][Spark]][Spark-url] [![Youtube][Youtube]][Youtube-url] [![SQLite][SQLite]][SQLite-url] [![GitHub][GitHub]][GitHub-url] [![MIT License][license-shield]][license-url] [![Contributors][contributors-shield]][contributors-url] [![Issues][issues-shield]][issues-url]
 
 </div>
+
+</br>
 
 ## Getting Started
 
