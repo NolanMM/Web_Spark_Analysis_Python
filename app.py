@@ -1,5 +1,4 @@
 import json
-
 from flask import Flask, render_template, request, make_response, Response, url_for, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -90,6 +89,8 @@ def index():
                             channel_name = request.cookies.get('channel_name')
                             if channel_name is not None:
                                 response.delete_cookie('channel_name')
+                            return response
+
                         else:
                             username = request.form['usernameInput']
                             password = request.form['passwordInput']

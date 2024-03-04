@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <base target='_top'>
+    </head>
+    <body>
+        <div style='font-family: Helvetica, Arial, sans-serif; min-width: 1000px; overflow: auto; line-height: 2'>
+            <div style='margin: 50px auto; width: 80%; padding: 20px 0; font-weight: 600'>
+                <div style='border-bottom: 5px solid #eee'>
+                    <a href='' style='font-size: 30px; color: #CC0000; text-decoration: none; font-weight: 600'>
+                        Database Management System - Group 1
+                    </a>
+                </div>
+                <br>
+                <p style='font-size: 22px'>Hello {invitation.GuestName},</p>
+                <p>You have been invited to a Party</p>
+                <p>Remember, Don't tell anyone this is secret party.</p><br><br>
+                <h2 style='margin-top: -60px; color: #CC0000; text-align: left'>Party Information </h2><br>
+                <h3 style='margin-top: -40px; color: #CC0000; text-align: left'>- {party_Model.Description} </h3><br>
+                <h3 style='margin-top: -40px; color: #CC0000; text-align: left'>- Date: {party_Model.Date.Value.Date} </h3><br>
+                <h3 style='margin-top: -40px; color: #CC0000; text-align: left'>- Location: {party_Model.Location}</h3><br>
+                <h3 style='margin-top: -40px; color: #CC0000; text-align: left'>- Owners: NolanM Party Manage Problem Solving 2</h3><br><br>
+                <h3 style='margin-top: -40px; color: #000; text-align: left; font-weight: 800'>Your response very important to us</h3><br>
+                <div style='text-align: left; margin-top: -40px;'>
+                    <div>
+                    <a href='{endpointLink_no}' style='background: #000; color: #fff; text-decoration: none; padding: 2px 16px; border-radius: 10px; display: inline-block; margin-right: 10px;'>I'm not interesting</a>
+                    <a href='{endpointLink_thinking}' style='background: green; color: #fff; text-decoration: none; padding: 2px 16px; border-radius: 10px; display: inline-block; margin-right: 10px;'>I'm Thinking</a>
+                    <a href='{endpointLink_yes}' style='background: #CC0000; color: #fff; text-decoration: none; padding: 2px 16px; border-radius: 10px; display: inline-block; margin-right: 10px;'>I'm In</a>
+                    </div>
+                    <br>
+                    <p style='font-size: 15px; font-weight: 600'>Regards,<br /><br>NolanM - Group 1</p>
+                    <hr style='border: none; border-top: 5px solid #eee' />
+                    <div style='float: left; padding: 8px 0; color: #aaa; font-size: 0.8em; line-height: 1; font-weight: 300'>
+                        <img src='{_nolanMLogoUrl}' alt='NolanM Logo' style='width: 50%; max-height: 108px;'>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
